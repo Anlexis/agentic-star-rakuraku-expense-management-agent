@@ -1,0 +1,13 @@
+# Runtime parameters — loaded by AgentRegistry, passed as Graph(config=...).
+# Separate from config/agent.yaml (the static manifest).
+
+# Backbone retry ceiling, read by the graph's own retry route.
+max_retry: 3
+# Per-call Rakus budget in seconds; reaches the client via the inner graph.
+timeout_s: 30
+
+# Rakus integration settings. Forwarded to the inner workflow graph by
+# RakusWorkflowGraphNode._parent_config(); CallRakusApiNode builds its client
+# from these.
+rakus:
+  base_url: "https://api.rakurakuseisan.jp/api1"

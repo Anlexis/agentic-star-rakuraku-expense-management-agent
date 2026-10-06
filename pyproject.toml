@@ -1,0 +1,55 @@
+[project]
+name = "cmn-c2-280"
+version = "0.1.0"
+description = "RakusExpenseAgent — AgentCore Template"
+requires-python = ">=3.11"
+# The framework (agenticstar-agentcore) is NOT a public-PyPI dependency; CI
+# installs it from an internal package index. Pinning it here would make
+# `pip install -e .` fail because it is not resolvable from the default index.
+# pyyaml is a real runtime dependency: src/graph/graph.py imports it directly to
+# read config/config.yaml (the runtime parameters forwarded to the inner graph).
+dependencies = [
+    "agenticstar-agentcore[marketplace,openai]==1.0.3",
+    "pyyaml==6.0.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==9.0.3",
+    "pytest-cov==5.0.0",
+    "pytest-asyncio==1.4.0",
+    "ruff==0.4.4",
+    "mypy==1.10.0",
+    # Stub package for PyYAML, which ships no inline types. Exact-pinned at the
+    # version the type check was verified against.
+    "types-PyYAML==6.0.12.20260815",
+]
+
+[build-system]
+requires = ["setuptools==68.2.2"]
+build-backend = "setuptools.build_meta"
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+# The framework wheel ships no type information, so every symbol imported from
+# it resolves to Any. Without these two settings strict mode reports the whole
+# template as untyped code rather than reporting anything about the template.
+disallow_subclassing_any = false
+# The generated sample nodes are distributed as-is and are not edited here.
+exclude = ["src/examples/"]
+
+[[tool.mypy.overrides]]
+module = ["framework.*", "shared.*", "langgraph.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+# AgentState resolves to Any (untyped wheel), so `class State(AgentState)` is a
+# subclass of Any and mypy rejects EVERY field annotation with valid-type. The
+# errors are all one cause, not many.
+module = ["src.schemas.state"]
+disable_error_code = ["valid-type"]
